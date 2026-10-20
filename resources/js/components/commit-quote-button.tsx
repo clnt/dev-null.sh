@@ -37,6 +37,7 @@ import {
     minBodyLength,
 } from '@/lib/commit';
 import { hasModKey, useKeyLabels } from '@/lib/keyboard';
+import { forgetPosting, rememberPosting } from '@/lib/posting-draft';
 import { characterCount, cn, isRejectedSubmission } from '@/lib/utils';
 import type { Commit } from '@/types';
 
@@ -195,13 +196,18 @@ function QuoteComposer({
                         : data
                 }
                 options={{ preserveScroll: true }}
+                onStart={() => rememberPosting(stashKey)}
                 onError={(errors) => {
+                    forgetPosting(stashKey);
+
                     if (errors.quoted_commit_id) {
                         markCommitDeleted(commit.id);
                         onClose();
                     }
                 }}
                 onSuccess={(page) => {
+                    forgetPosting(stashKey);
+
                     if (!isRejectedSubmission(page.flash)) {
                         attachments.clear();
                         drop();
